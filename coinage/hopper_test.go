@@ -110,5 +110,18 @@ var _ = Describe("Hopper", func() {
 			Expect(ok).To(BeTrue())
 			Expect(change).To(BeEquivalentTo([]uint{100}))
 		})
+
+		It("gives all the change it can", func() {
+			hopper = coinage.NewHopper([]uint{1, 1, 1, 100, 50, 25})
+			tray.Insert(5)
+			tray.Insert(5)
+			tray.Insert(5)
+			tray.Insert(5)
+			tray.Insert(5)
+
+			change, ok := hopper.Deposit(tray, 21)
+			Expect(ok).To(BeTrue())
+			Expect(change).To(BeEquivalentTo([]uint{1, 1, 1}))
+		})
 	})
 })
