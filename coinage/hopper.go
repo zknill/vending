@@ -1,7 +1,5 @@
 package coinage
 
-import "fmt"
-
 // Hopper contains the money inside the machine
 // it controls deposits.
 type Hopper struct {
@@ -24,19 +22,22 @@ func NewHopper(changeFloat []uint) *Hopper {
 // empty the tray. Deposit will return false if the purchase
 // has not been made, e.g. not enough money, or change cannot
 // be given for the purchase.
-func (h *Hopper) Deposit(t *Tray, price uint) ([]uint, bool) {
-	usedTrayCoins := make([]bool, len(t.coins))
-	usedHopperCoins := make([]bool, len(h.coins))
+func (h *Hopper) Deposit(t *Tray, price int) ([]uint, bool) {
+	var (
+		usedTrayCoins   = make([]bool, len(t.coins))
+		usedHopperCoins = make([]bool, len(h.coins))
+	)
 
-	tSolution, hSolution, solved := resolveCoins(int(price), t.coins, usedTrayCoins, h.coins, usedHopperCoins)
-	if !solved {
+	solution := resolveCoins(int(price), t.coins, usedTrayCoins, h.coins, usedHopperCoins)
+
+	if solution.solvedPrice > 0 {
 		return nil, false
 	}
 
 	var hopper []uint
 	var change []uint
 
-	for i, used := range tSolution {
+	for i, used := range solution.usedTrayCoins {
 		if used {
 			hopper = append(hopper, t.coins[i])
 		} else {
@@ -44,7 +45,7 @@ func (h *Hopper) Deposit(t *Tray, price uint) ([]uint, bool) {
 		}
 	}
 
-	for i, used := range hSolution {
+	for i, used := range solution.usedHopperCoins {
 		if used {
 			change = append(change, h.coins[i])
 		} else {
@@ -52,13 +53,37 @@ func (h *Hopper) Deposit(t *Tray, price uint) ([]uint, bool) {
 		}
 	}
 
-	fmt.Printf("hopper: %v", hopper)
-	fmt.Printf("change: %v", change)
-
 	t.coins = make([]uint, 0)
 	h.coins = hopper
 
 	return change, true
+}
+
+type solution struct {
+	usedTrayCoins   []bool
+	usedHopperCoins []bool
+	solvedPrice     int
+}
+
+// This method decides which solution is better.
+// The optimal solution has a solvedPrice of zero,
+// which means the exact money and change could be
+// found. The next best solution is an overpayment
+// but minimising the amount overpaid.
+// This method could be extended with biz logic like
+// "best solution has smallest number of coins in change", etc.
+func (current solution) isBetter(challenger solution) solution {
+	if challenger.solvedPrice <= 0 {
+		if current.solvedPrice > 0 {
+			return challenger
+		}
+
+		if challenger.solvedPrice > current.solvedPrice {
+			return challenger
+		}
+	}
+
+	return current
 }
 
 // We have coins in the tray
@@ -86,12 +111,16 @@ func resolveCoins(
 	usedTrayCoins []bool,
 	hopperCoins []uint,
 	usedHopperCoins []bool,
-) ([]bool, []bool, bool) {
+) solution {
 
-	fmt.Printf("---\nprice: %d\ntray: %v\nhopper: %v\n", price, usedTrayCoins, usedHopperCoins)
+	bestSolution := solution{
+		usedTrayCoins:   usedTrayCoins,
+		usedHopperCoins: usedHopperCoins,
+		solvedPrice:     price,
+	}
 
 	if price == 0 {
-		return usedTrayCoins, usedHopperCoins, true
+		return bestSolution
 	}
 
 	if price > 0 {
@@ -108,7 +137,7 @@ func resolveCoins(
 
 			updatedUsed := markIndex(usedTrayCoins, i)
 
-			traySolution, hopperSolution, solved := resolveCoins(
+			solution := resolveCoins(
 				remainingPrice,
 				trayCoins,
 				updatedUsed,
@@ -116,9 +145,11 @@ func resolveCoins(
 				usedHopperCoins,
 			)
 
-			if solved {
-				return traySolution, hopperSolution, true
+			if solution.solvedPrice == 0 {
+				return solution
 			}
+
+			bestSolution = bestSolution.isBetter(solution)
 		}
 	}
 
@@ -136,7 +167,7 @@ func resolveCoins(
 
 			updatedUsed := markIndex(usedHopperCoins, i)
 
-			traySolution, hopperSolution, solved := resolveCoins(
+			solution := resolveCoins(
 				remainingPrice,
 				trayCoins,
 				usedTrayCoins,
@@ -144,13 +175,19 @@ func resolveCoins(
 				updatedUsed,
 			)
 
-			if solved {
-				return traySolution, hopperSolution, true
+			if solution.solvedPrice == 0 {
+				return solution
 			}
+
+			if solution.solvedPrice > 0 {
+				continue
+			}
+
+			bestSolution = bestSolution.isBetter(solution)
 		}
 	}
 
-	return nil, nil, false
+	return bestSolution
 }
 
 func markIndex(in []bool, idx int) []bool {

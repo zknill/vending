@@ -94,11 +94,21 @@ var _ = Describe("Hopper", func() {
 			hopper = coinage.NewHopper(nil)
 		})
 
-		It("fails when change cannot be given", func() {
+		It("succeeds when change cannot be given", func() {
 			tray.Insert(25)
 
-			_, ok := hopper.Deposit(tray, 24)
-			Expect(ok).To(BeFalse())
+			change, ok := hopper.Deposit(tray, 24)
+			Expect(ok).To(BeTrue())
+			Expect(change).To(BeEmpty())
+		})
+
+		It("overcharges by smallest amount when change cannot be given", func() {
+			tray.Insert(100)
+			tray.Insert(25)
+
+			change, ok := hopper.Deposit(tray, 24)
+			Expect(ok).To(BeTrue())
+			Expect(change).To(BeEquivalentTo([]uint{100}))
 		})
 	})
 })

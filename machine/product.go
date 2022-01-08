@@ -1,10 +1,13 @@
 package machine
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Product struct {
 	Coordinate string
-	Price      uint
+	Price      int
 	Name       string
 }
 
@@ -22,6 +25,10 @@ func NewInventory(products ...Product) (*Inventory, error) {
 	for _, p := range products {
 		if _, exists := i.catalog[p.Coordinate]; exists {
 			return nil, fmt.Errorf("only one product in each coordinate")
+		}
+
+		if p.Price <= 0 {
+			return nil, errors.New("cannot have zero or negative priced products")
 		}
 
 		i.catalog[p.Coordinate] = p

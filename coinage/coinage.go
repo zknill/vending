@@ -62,8 +62,8 @@ func (t *Tray) Reset() []uint {
 
 // Check if there are enough coins to meet
 // the price of the purchase.
-func (t Tray) MeetsPrice(price uint) bool {
-	return sumCoins(t.coins) >= price
+func (t Tray) MeetsPrice(price int) bool {
+	return sumCoins(t.coins) >= uint(price)
 }
 
 func sumCoins(coins []uint) uint {
