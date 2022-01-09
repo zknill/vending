@@ -123,5 +123,22 @@ var _ = Describe("Hopper", func() {
 			Expect(ok).To(BeTrue())
 			Expect(change).To(BeEquivalentTo([]uint{1, 1, 1}))
 		})
+
+		It("uses more tray coins in order to match change", func() {
+			hopper = coinage.NewHopper([]uint{50})
+			tray.Insert(25)
+			tray.Insert(100)
+
+			// hopper contains 50 cents
+			// tray contains 100 + 25 cents
+			// product costs 75 cents
+			// machine should use all the tray coins,
+			// as this allows for perfect change.
+
+			change, ok := hopper.Deposit(tray, 75)
+			Expect(ok).To(BeTrue())
+			Expect(change).To(BeEquivalentTo([]uint{50}))
+			Expect(hopper.Value()).To(Equal(uint(125)))
+		})
 	})
 })
