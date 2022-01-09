@@ -1,6 +1,7 @@
 package coinage
 
 import (
+	"errors"
 	"sort"
 	"strconv"
 	"strings"
@@ -9,17 +10,34 @@ import (
 // Hopper contains the money inside the machine
 // it controls deposits.
 type Hopper struct {
-	coins []uint
+	coins         []uint
+	denominations Denominations
 }
 
-func NewHopper(changeFloat []uint) *Hopper {
+func NewHopper(d Denominations, changeFloat []uint) (*Hopper, error) {
 	h := &Hopper{coins: make([]uint, 0)}
+
+	if !d.Valid(changeFloat...) {
+		return nil, errors.New("invalid float change")
+	}
 
 	if len(changeFloat) > 0 {
 		h.coins = append(h.coins, changeFloat...)
 	}
 
-	return h
+	return h, nil
+}
+
+func (h *Hopper) ReFloat(changeFloat []uint) error {
+	if !h.denominations.Valid(changeFloat...) {
+		return errors.New("invalid float change")
+	}
+
+	if len(changeFloat) > 0 {
+		h.coins = append(h.coins, changeFloat...)
+	}
+
+	return nil
 }
 
 // Deposit the coins from the input tray into the hopper.

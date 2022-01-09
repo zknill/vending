@@ -1,8 +1,6 @@
 package machine
 
 import (
-	"errors"
-
 	"github.com/zknill/vending/coinage"
 )
 
@@ -24,7 +22,7 @@ func (m Machine) InsertCoin(coin uint) error {
 	accepted := m.tray.Insert(coin)
 
 	if !accepted {
-		return errors.New("unrecognised coin")
+		return errUnknownCoin{coin: coin}
 	}
 
 	return nil
@@ -37,42 +35,46 @@ func (m Machine) EjectCoins() []uint {
 func (m Machine) Purchase(coordinate string) (Product, []uint, error) {
 	stock, found := m.inventory.StockLevel(coordinate)
 	if !found {
-		return Product{}, nil, errors.New("unknown product coordinate")
+		return Product{}, nil, errUnknownProduct{coordinate: coordinate}
 	}
 
 	if stock < 1 {
-		return Product{}, nil, errors.New("out of stock")
+		return Product{}, nil, errOutOfStock{coordinate: coordinate}
 	}
 
 	product := m.inventory.catalog[coordinate]
 
 	if !m.tray.MeetsPrice(product.Price) {
-		return Product{}, nil, errors.New("not enough money")
+		return Product{}, nil, errNotEnoughMoney{required: product.Price - int(m.tray.Value())}
 	}
 
 	change, success := m.hopper.Deposit(m.tray, product.Price)
 
 	if !success {
-		return Product{}, nil, errors.New("use exact change")
+		return Product{}, nil, errExactChange{}
 	}
 
 	return product, change, nil
 }
 
-func (m Machine) Unlock(key *Key) UnlockedMachine {
+func (m Machine) Unlock() UnlockedMachine {
 	return UnlockedMachine{m}
 }
-
-type Key struct{}
 
 type UnlockedMachine struct {
 	Machine
 }
 
 func (um UnlockedMachine) Restock(inventory map[string]int) {
+	for coord, stock := range inventory {
+		if _, found := um.inventory.inventory[coord]; !found {
+			continue
+		}
 
+		um.inventory.inventory[coord] += stock
+	}
 }
 
-func (um UnlockedMachine) RefloatChange(coins []uint) {
-
+func (um UnlockedMachine) RefloatChange(coins []uint) error {
+	return um.hopper.ReFloat(coins)
 }

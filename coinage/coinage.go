@@ -66,6 +66,10 @@ func (t Tray) MeetsPrice(price int) bool {
 	return sumCoins(t.coins) >= uint(price)
 }
 
+func (t Tray) Value() uint {
+	return sumCoins(t.coins)
+}
+
 func sumCoins(coins []uint) uint {
 	var total uint
 

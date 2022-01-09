@@ -14,15 +14,18 @@ var _ = Describe("Hopper", func() {
 		var (
 			hopper *coinage.Hopper
 			tray   *coinage.Tray
+			err    error
 		)
 
 		BeforeEach(func() {
 			tray = coinage.NewTray(d)
-			hopper = coinage.NewHopper(nil)
+			hopper, err = coinage.NewHopper(d, nil)
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("accepts setup change float", func() {
-			hopper = coinage.NewHopper([]uint{1, 5, 10, 25, 50, 100})
+			hopper, err = coinage.NewHopper(d, []uint{1, 5, 10, 25, 50, 100})
+			Expect(err).NotTo(HaveOccurred())
 
 			Expect(hopper.Value()).To(Equal(uint(191)))
 
@@ -67,7 +70,8 @@ var _ = Describe("Hopper", func() {
 				float[i] = 1
 				expectedChange[i] = 1
 			}
-			hopper = coinage.NewHopper(float)
+			hopper, err = coinage.NewHopper(d, float)
+			Expect(err).NotTo(HaveOccurred())
 
 			tray.Insert(100)
 
@@ -85,13 +89,16 @@ var _ = Describe("Hopper", func() {
 
 	Context("Overpaying", func() {
 		var (
+			d      = coinage.NewDenominations(1, 5, 10, 25, 50, 100)
 			hopper *coinage.Hopper
 			tray   *coinage.Tray
+			err    error
 		)
 
 		BeforeEach(func() {
 			tray = coinage.NewTray(d)
-			hopper = coinage.NewHopper(nil)
+			hopper, err = coinage.NewHopper(d, nil)
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("succeeds when change cannot be given", func() {
@@ -112,7 +119,9 @@ var _ = Describe("Hopper", func() {
 		})
 
 		It("gives all the change it can", func() {
-			hopper = coinage.NewHopper([]uint{1, 1, 1, 100, 50, 25})
+			hopper, err = coinage.NewHopper(d, []uint{1, 1, 1, 100, 50, 25})
+			Expect(err).NotTo(HaveOccurred())
+
 			tray.Insert(5)
 			tray.Insert(5)
 			tray.Insert(5)
@@ -125,7 +134,9 @@ var _ = Describe("Hopper", func() {
 		})
 
 		It("uses more tray coins in order to match change", func() {
-			hopper = coinage.NewHopper([]uint{50})
+			hopper, err = coinage.NewHopper(d, []uint{50})
+			Expect(err).NotTo(HaveOccurred())
+
 			tray.Insert(25)
 			tray.Insert(100)
 

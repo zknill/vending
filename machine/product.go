@@ -37,16 +37,16 @@ func NewInventory(products ...Product) (*Inventory, error) {
 	return i, nil
 }
 
-func (i *Inventory) ModifyStock(coordinate string, change int) error {
+func (i *Inventory) ModifyStock(coordinate string, modify int) error {
 	if _, exists := i.catalog[coordinate]; !exists {
 		return fmt.Errorf("unknown coordinate: %s", coordinate)
 	}
 
-	if i.inventory[coordinate]+change < 0 {
+	if i.inventory[coordinate]+modify < 0 {
 		return fmt.Errorf("not enough stock: %s", coordinate)
 	}
 
-	i.inventory[coordinate] += change
+	i.inventory[coordinate] += modify
 
 	return nil
 }
