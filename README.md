@@ -2,8 +2,6 @@
 
 A vending machine implementation in go. 
 
-Interactions are laid out in interaction/interaction_test.go 
-
 ## Domain
 
 1. Machine -- the vending machine, it contains all the rest of the parts.
