@@ -18,6 +18,8 @@ A vending machine implementation in go.
    from the tray and hopper. 
 2. This vending machine assumes that there will only be one customer at once. Some of the operations are not thread safe. 
 3. This vending machine doesn't currently provide an interface (beyond the API in code). With more time; I would build an HTTP or CLI interface to interact with the machine. 
+4. There are no interfaces for dependency injection, I could replace the `Hopper`, `Tray`, and `Inventory` with interfaces that would allow for dependency injection. i.e. an
+   inventory that stored its stock data in a database instead of in memory. 
 
 ## Main algorithm
 
