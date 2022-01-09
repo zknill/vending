@@ -4,6 +4,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/zknill/vending/coinage"
+	"github.com/zknill/vending/domain"
 	"github.com/zknill/vending/machine"
 )
 
@@ -14,18 +15,18 @@ var _ = Describe("Interaction", func() {
 
 	BeforeEach(func() {
 		inventory, err := machine.NewInventory(
-			machine.Product{
+			domain.Product{
 				Coordinate: "A1",
 				Price:      49,
 				Name:       "Stroop Waffle",
 			},
 
-			machine.Product{
+			domain.Product{
 				Coordinate: "A2",
 				Price:      3,
 				Name:       "3 Penny Sweet",
 			},
-			machine.Product{
+			domain.Product{
 				Coordinate: "A3",
 				Price:      82,
 				Name:       "Multipack Mars",

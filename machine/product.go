@@ -3,22 +3,18 @@ package machine
 import (
 	"errors"
 	"fmt"
+
+	"github.com/zknill/vending/domain"
 )
 
-type Product struct {
-	Coordinate string
-	Price      int
-	Name       string
-}
-
 type Inventory struct {
-	catalog   map[string]Product
+	catalog   map[string]domain.Product
 	inventory map[string]int
 }
 
-func NewInventory(products ...Product) (*Inventory, error) {
+func NewInventory(products ...domain.Product) (*Inventory, error) {
 	i := &Inventory{
-		catalog:   map[string]Product{},
+		catalog:   map[string]domain.Product{},
 		inventory: map[string]int{},
 	}
 

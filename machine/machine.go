@@ -2,6 +2,7 @@ package machine
 
 import (
 	"github.com/zknill/vending/coinage"
+	"github.com/zknill/vending/domain"
 )
 
 type Machine struct {
@@ -32,26 +33,26 @@ func (m Machine) EjectCoins() []uint {
 	return m.tray.Reset()
 }
 
-func (m Machine) Purchase(coordinate string) (Product, []uint, error) {
+func (m Machine) Purchase(coordinate string) (domain.Product, []uint, error) {
 	stock, found := m.inventory.StockLevel(coordinate)
 	if !found {
-		return Product{}, nil, errUnknownProduct{coordinate: coordinate}
+		return domain.Product{}, nil, errUnknownProduct{coordinate: coordinate}
 	}
 
 	if stock < 1 {
-		return Product{}, nil, errOutOfStock{coordinate: coordinate}
+		return domain.Product{}, nil, errOutOfStock{coordinate: coordinate}
 	}
 
 	product := m.inventory.catalog[coordinate]
 
 	if !m.tray.MeetsPrice(product.Price) {
-		return Product{}, nil, errNotEnoughMoney{required: product.Price - int(m.tray.Value())}
+		return domain.Product{}, nil, errNotEnoughMoney{required: product.Price - int(m.tray.Value())}
 	}
 
 	change, success := m.hopper.Deposit(m.tray, product.Price)
 
 	if !success {
-		return Product{}, nil, errExactChange{}
+		return domain.Product{}, nil, errExactChange{}
 	}
 
 	return product, change, nil

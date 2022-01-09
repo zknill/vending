@@ -3,6 +3,7 @@ package machine_test
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/zknill/vending/domain"
 	"github.com/zknill/vending/machine"
 )
 
@@ -14,18 +15,18 @@ var _ = Describe("Product", func() {
 		BeforeEach(func() {
 			var err error
 			inventory, err = machine.NewInventory(
-				machine.Product{
+				domain.Product{
 					Coordinate: "A1",
 					Price:      250,
 					Name:       "Stroop Waffle",
 				},
 
-				machine.Product{
+				domain.Product{
 					Coordinate: "A2",
 					Price:      3,
 					Name:       "3 Penny Sweet",
 				},
-				machine.Product{
+				domain.Product{
 					Coordinate: "A3",
 					Price:      1000,
 					Name:       "Multipack Mars",
@@ -62,13 +63,13 @@ var _ = Describe("Product", func() {
 
 		It("checks unique coordinates for product catalog", func() {
 			_, err := machine.NewInventory(
-				machine.Product{
+				domain.Product{
 					Coordinate: "A1",
 					Price:      250,
 					Name:       "Stroop Waffle",
 				},
 
-				machine.Product{
+				domain.Product{
 					Coordinate: "A1",
 					Price:      3,
 					Name:       "3 Penny Sweet",

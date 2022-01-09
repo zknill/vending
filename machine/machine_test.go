@@ -18,7 +18,7 @@ var _ = Describe("Machine", func() {
 
 	BeforeEach(func() {
 		inventory, err := machine.NewInventory(
-			machine.Product{
+			domain.Product{
 				Coordinate: "A1",
 				Price:      10,
 				Name:       "test product",

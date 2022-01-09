@@ -2,6 +2,14 @@
 
 A vending machine implementation in go. 
 
+To run the tests; 
+
+```bash
+$ make test
+# or
+$ go test ./...
+```
+
 ## Domain
 
 1. Machine -- the vending machine, it contains all the rest of the parts.
@@ -17,9 +25,10 @@ A vending machine implementation in go.
 1. This vending machine assumes that customers will want to purchase a product even if exact change cannot be given. In this scenario the machine will give the best possible change
    from the tray and hopper. 
 2. This vending machine assumes that there will only be one customer at once. Some of the operations are not thread safe. 
-3. This vending machine doesn't currently provide an interface (beyond the API in code). With more time; I would build an HTTP or CLI interface to interact with the machine. 
+3. This vending machine doesn't currently provide a proper interface (beyond the API in code). With more time; I would build a threadsafe HTTP or CLI interface to interact with the machine. 
 4. There are no interfaces for dependency injection, I could replace the `Hopper`, `Tray`, and `Inventory` with interfaces that would allow for dependency injection. i.e. an
-   inventory that stored its stock data in a database instead of in memory. 
+   inventory that stored its stock data in a database instead of in memory. The only interface is for the Machine, `domain.Machine`. This has mocks for use in the http server
+   tests. 
 
 ## Main algorithm
 
@@ -35,3 +44,8 @@ solution that minimises the overpayment by the customer.
 
 1. To restock the machine, or top up the hopper's change, you must first `machine.Unlock()` the machine. This gives access to an `UnlockedMachine` with methods to reload the stock
    and change. 
+
+## Toy server
+
+There's a toy server implemented in the http package, its not thread safe as it builds on the assumptions above^.
+The server does show some APIs, error handling, and request / response bodies. There are tests for the server. 
